@@ -18,11 +18,13 @@ import app.ProtPorts;
 import app.Rule;
 import app.WorkThread;
 import app.message.request.AddRuleRequest;
+import app.message.request.DeleteRuleRequest;
 import app.message.request.GetDefaultRuleRequest;
 import app.message.response.GetDefaultPolicyResponse;
 import app.message.response.GetRulesResponse;
 import app.message.response.Response;
 import app.message.request.GetRulesRequest;
+
 
 public class IPTables extends FireWallOp {
 	static final String Action_allow_iptables = "ACCEPT";
@@ -47,6 +49,14 @@ public class IPTables extends FireWallOp {
 		return strRet;
 	}
 
+	String buildDelRuleCommand(DeleteRuleRequest request){
+		String strRet = null;
+		String direction = convertThisDirectionToHost(request.getDirection());
+		strRet = String.format("iptables -D %s %s", direction,request.getId());
+		logger.debug("buildGetDefaultRuleCommand:" + strRet);
+		return strRet;
+	}
+	
 	String buildAddRuleCommand(AddRuleRequest request) {
 		Rule rule = request.getRule();
 		String strRet = null;
@@ -374,12 +384,6 @@ public class IPTables extends FireWallOp {
 		request.setDirection(direction);
 	}
 
-	void convertAddRuleRequestToHost(AddRuleRequest request) {
-		String direction = request.getRule().getDirection().equals(Constant.Direction_in) ? IPTables.Direction_in
-				: IPTables.Direction_out;
-		request.getRule().setDirection(direction);
-	}
-
 	void convertGetRulesRequestToHost(GetRulesRequest request) {
 		String direction = request.getDirection().equals(Constant.Direction_in) ? IPTables.Direction_in
 				: IPTables.Direction_out;
@@ -392,9 +396,16 @@ public class IPTables extends FireWallOp {
 		return action;
 	}
 	
-	String convertHostDirectionToThis(String hostAction) {
-		String action = hostAction.equals(IPTables.Direction_in) ? Constant.Direction_in
+	String convertHostDirectionToThis(String hostDirection) {
+		String direction = hostDirection.equals(IPTables.Direction_in) ? Constant.Direction_in
 				: Constant.Direction_out;
-		return action;
+		return direction;
 	}
+	
+	String convertThisDirectionToHost(String thisDirection) {
+		String direction = thisDirection.equals(Constant.Direction_in) ? IPTables.Direction_in
+				: IPTables.Direction_out;
+		return direction;
+	}
+
 }
