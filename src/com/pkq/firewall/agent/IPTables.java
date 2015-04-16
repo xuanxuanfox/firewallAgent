@@ -1,4 +1,4 @@
-package app.firewall;
+package com.pkq.firewall.agent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +12,18 @@ import org.apache.oro.text.regex.Perl5Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pkq.util.SystemUtil;
-import app.Constant;
-import app.ProtPorts;
-import app.Rule;
-import app.WorkThread;
-import app.message.request.AddRuleRequest;
-import app.message.request.DeleteRuleRequest;
-import app.message.request.GetDefaultRuleRequest;
-import app.message.response.GetDefaultPolicyResponse;
-import app.message.response.GetRulesResponse;
-import app.message.response.Response;
-import app.message.request.GetRulesRequest;
+import com.pkq.util.SystemUtil;
+import com.pkq.firewall.common.Constant;
+import com.pkq.firewall.model.ProtPorts;
+import com.pkq.firewall.model.Rule;
+
+import com.pkq.firewall.message.request.AddRuleRequest;
+import com.pkq.firewall.message.request.DeleteRuleRequest;
+import com.pkq.firewall.message.request.GetDefaultRuleRequest;
+import com.pkq.firewall.message.response.GetDefaultPolicyResponse;
+import com.pkq.firewall.message.response.GetRulesResponse;
+import com.pkq.firewall.message.response.Response;
+import com.pkq.firewall.message.request.GetRulesRequest;
 
 
 public class IPTables extends FireWallOp {
@@ -396,7 +396,7 @@ public class IPTables extends FireWallOp {
 		return action;
 	}
 	
-	String convertHostDirectionToThis(String hostDirection) {
+	String convertHostDirectionToThis(String hostDirection){
 		String direction = hostDirection.equals(IPTables.Direction_in) ? Constant.Direction_in
 				: Constant.Direction_out;
 		return direction;

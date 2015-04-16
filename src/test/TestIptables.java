@@ -3,14 +3,14 @@ package test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pkq.util.FileOp;
-import app.Constant;
-import app.Rule;
-import app.firewall.IPTables;
-import app.message.request.AddRuleRequest;
-import app.message.request.GetDefaultRuleRequest;
-import app.message.request.GetRulesRequest;
-import app.message.response.GetRulesResponse;
+import com.pkq.util.FileOp;
+import com.pkq.firewall.common.Constant;
+import com.pkq.firewall.model.Rule;
+import com.pkq.firewall.agent.IPTables;
+import com.pkq.firewall.message.request.AddRuleRequest;
+import com.pkq.firewall.message.request.GetDefaultRuleRequest;
+import com.pkq.firewall.message.request.GetRulesRequest;
+import com.pkq.firewall.message.response.GetRulesResponse;
 
 public class TestIptables {
 	static Logger logger = LoggerFactory.getLogger(IPTables.class);
@@ -21,8 +21,8 @@ public class TestIptables {
 	 static void testAll(){
 		 //testIptables_getDefaultRule();
 		 //testIptables_AddRule();
-		 testIptables_GetRules();
-		 //testgetIptables_parseRule();
+		 //testIptables_GetRules();
+		 testgetIptables_parseRule();
 		//testgetIptables_parseRemotePort();
 		 //testIptables_parseGetRulesResponse();
 	}
@@ -98,9 +98,9 @@ public class TestIptables {
 				//message = "1    ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:22 state NEW,ESTABLISHED";
 				//message = "1    DROP       tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:888";
 				//message = "2    ACCEPT     tcp  --  0.0.0.0/0            192.168.1.101       multiport dports 3306,3307"; 
-				//message = "10   ACCEPT     tcp  --  0.0.0.0/0            192.168.1.101       multiport dports 3306,3307 state NEW,ESTABLISHED"; 
+				message = "10   ACCEPT     tcp  --  0.0.0.0/0            192.168.1.101       multiport dports 3306,3307 state NEW,ESTABLISHED"; 
 				//message = "6    ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0";  //特殊规则，程序应该忽略之
-				message = "5    ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED";  //特殊规则，程序应该忽略之
+				//message = "5    ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED";  //特殊规则，程序应该忽略之
 				Rule rule = o.parseInputRule(message);
 				System.out.println(rule);
 

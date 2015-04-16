@@ -1,13 +1,11 @@
-package pkq.network;
+package com.pkq.firewall.app;
 
 import java.io.*;
 import java.net.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import app.PkqfirewallAgent;
-import app.WorkThread;
+import com.pkq.firewall.app.WorkThread;
 
 public class UDPServer {
 	int port = 5114;  //默认监听端口

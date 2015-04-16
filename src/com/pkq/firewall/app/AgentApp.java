@@ -1,17 +1,17 @@
-package app;
+package com.pkq.firewall.app;
 
 import java.io.InputStream;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pkq.network.UDPServer;
+import com.pkq.firewall.app.UDPServer;
 
-public class PkqfirewallAgent {
-	Logger logger = LoggerFactory.getLogger(PkqfirewallAgent.class); 
+public class AgentApp {
+	Logger logger = LoggerFactory.getLogger(AgentApp.class); 
 	
 	public static void main(String[] args) {
-		PkqfirewallAgent app = new PkqfirewallAgent();
+		AgentApp app = new AgentApp();
 		app.runApp();
 	}
 

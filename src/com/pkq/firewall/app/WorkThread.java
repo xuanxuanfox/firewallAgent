@@ -1,22 +1,24 @@
-package app;
+package com.pkq.firewall.app;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import app.firewall.FireWallOp;
-import app.firewall.IPTables;
-import app.message.request.AddRuleRequest;
-import app.message.request.GetRulesRequest;
-import app.message.response.Response;
+import com.pkq.firewall.agent.FireWallOp;
+import com.pkq.firewall.agent.IPTables;
+
+import com.pkq.firewall.common.Constant;
+import com.pkq.firewall.message.request.AddRuleRequest;
+import com.pkq.firewall.message.request.GetRulesRequest;
+import com.pkq.firewall.message.response.Response;
 
 import com.alibaba.fastjson.JSON;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pkq.util.OSinfo;
+import com.pkq.util.OSinfo;
 
 public class WorkThread implements Runnable {
 	DatagramPacket dgp;

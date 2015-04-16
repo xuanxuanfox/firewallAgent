@@ -1,4 +1,4 @@
-package pkq.util;
+package com.pkq.util;
 
 /**
  * 操作系统类：
