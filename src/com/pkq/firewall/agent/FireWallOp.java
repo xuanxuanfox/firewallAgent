@@ -21,7 +21,7 @@ public abstract class FireWallOp {
 	abstract String buildAddRuleCommand(AddRuleRequest request);
 	abstract String buildGetRulesCommand(GetRulesRequest request) ;
 	abstract String buildGetDefaultRuleCommand(GetDefaultRuleRequest request) ;
-	abstract String buildDelRuleCommand(DeleteRuleRequest request);
+	abstract String buildDelRuleCommand(DeleteRuleRequest request) throws Exception;
 	abstract Response parseCommonResponse(String strRsp) throws Exception;
 	abstract GetDefaultRuleResponse parseDefaultRuleResponse(String direction, String strRsp) throws Exception;
 	abstract GetRulesResponse parseGetRulesResponse(String direction, int start, int limit, String message) throws Exception;

@@ -49,10 +49,22 @@ public class IPTables extends FireWallOp {
 		return strRet;
 	}
 
-	String buildDelRuleCommand(DeleteRuleRequest request){
+	String buildDelRuleCommand(DeleteRuleRequest request) throws Exception{
+		String token = "-";
 		String strRet = null;
 		String direction = convertThisDirectionToHost(request.getDirection());
-		strRet = String.format("iptables -D %s %s", direction,request.getId());
+		String ruleId = request.getId();
+		//id组合规则：ip-direction-line,要分解出行号，根据行号删除
+		int pos = ruleId.indexOf(token);
+		if(pos<1){
+			throw new Exception("rule id 格式不对");
+		}
+		String lineNumber = ruleId.substring(pos+token.length());
+		String directionInId = ruleId.substring(0,pos);
+		if(!direction.equals(directionInId){
+			throw new Exception("direction 不匹配");
+		}
+		strRet = String.format("iptables -D %s %s", direction,lineNumber);
 		logger.debug("buildGetDefaultRuleCommand:" + strRet);
 		return strRet;
 	}
