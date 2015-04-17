@@ -10,7 +10,7 @@ import com.pkq.firewall.model.Rule;
 import com.pkq.firewall.message.request.AddRuleRequest;
 import com.pkq.firewall.message.request.DeleteRuleRequest;
 import com.pkq.firewall.message.request.GetDefaultRuleRequest;
-import com.pkq.firewall.message.response.GetDefaultPolicyResponse;
+import com.pkq.firewall.message.response.GetDefaultRuleResponse;
 import com.pkq.firewall.message.response.GetRulesResponse;
 import com.pkq.firewall.message.response.Response;
 import com.pkq.firewall.message.request.GetRulesRequest;
@@ -23,7 +23,7 @@ public abstract class FireWallOp {
 	abstract String buildGetDefaultRuleCommand(GetDefaultRuleRequest request) ;
 	abstract String buildDelRuleCommand(DeleteRuleRequest request);
 	abstract Response parseCommonResponse(String strRsp) throws Exception;
-	abstract GetDefaultPolicyResponse parseDefaultRuleResponse(String direction, String strRsp) throws Exception;
+	abstract GetDefaultRuleResponse parseDefaultRuleResponse(String direction, String strRsp) throws Exception;
 	abstract GetRulesResponse parseGetRulesResponse(String direction, int start, int limit, String message) throws Exception;
 	
 	public String addRule(AddRuleRequest request) throws Exception{
@@ -55,7 +55,7 @@ public abstract class FireWallOp {
 		//String strRsp = "Chain INPUT (policy ACCEPT)";
 		String logMsg = String.format("run command:%s \n return: %s", strCmd,strRsp);
 		logger.debug( logMsg );
-		GetDefaultPolicyResponse response = parseDefaultRuleResponse(request.getDirection(),strRsp);
+		GetDefaultRuleResponse response = parseDefaultRuleResponse(request.getDirection(),strRsp);
 		String jsonStringSend = JSON.toJSONString(response);
 		return jsonStringSend;
 	}

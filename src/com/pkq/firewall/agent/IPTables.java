@@ -20,7 +20,7 @@ import com.pkq.firewall.model.Rule;
 import com.pkq.firewall.message.request.AddRuleRequest;
 import com.pkq.firewall.message.request.DeleteRuleRequest;
 import com.pkq.firewall.message.request.GetDefaultRuleRequest;
-import com.pkq.firewall.message.response.GetDefaultPolicyResponse;
+import com.pkq.firewall.message.response.GetDefaultRuleResponse;
 import com.pkq.firewall.message.response.GetRulesResponse;
 import com.pkq.firewall.message.response.Response;
 import com.pkq.firewall.message.request.GetRulesRequest;
@@ -187,10 +187,10 @@ public class IPTables extends FireWallOp {
 	 */
 	public Rule parseRule(String direction, String message) throws Exception {
 		if (direction.equals(IPTables.Direction_in)) {
-			return parseInputRule(message);
+			return parseInputRule(direction,message);
 		} else {
 			//return parseOutputRule(message);
-			return parseInputRule(message);
+			return parseInputRule(direction,message);
 		}
 	}
 
@@ -202,7 +202,7 @@ public class IPTables extends FireWallOp {
 	 * @return
 	 * @throws Exception
 	 */
-	public Rule parseInputRule(String message) throws Exception {
+	public Rule parseInputRule(String direction, String message) throws Exception {
 		Rule rule = new Rule();
 		String strReg1 = "^(\\d)+\\s+(\\w+)\\s+(\\w+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(.+)\\s+state\\s+(\\S+)";
 		String strReg2 = "^(\\d)+\\s+(\\w+)\\s+(\\w+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(.+)";
@@ -255,8 +255,9 @@ public class IPTables extends FireWallOp {
 			if(message.contains(IPTables.State_token)){
 				state = result.group(8).trim();
 			}
-
-			rule.setId(nLine);
+			//id组合规则：ip-direction-line
+			String ruleID = String.format("%s-%s", direction,nLine);
+			rule.setId(ruleID);
 			rule.setAction(target);
 			rule.setProtocol(prot);
 			rule.setPort(pps.getPorts());
@@ -321,9 +322,9 @@ public class IPTables extends FireWallOp {
 	 *            策略消息字符串
 	 * @return 默认策略对象
 	 */
-	GetDefaultPolicyResponse parseDefaultRuleResponse(String direction,String message)
+	GetDefaultRuleResponse parseDefaultRuleResponse(String direction,String message)
 			throws Exception {
-		GetDefaultPolicyResponse response = new GetDefaultPolicyResponse();
+		GetDefaultRuleResponse response = new GetDefaultRuleResponse();
 		int start=1;
 		int limit=1;
 		/* 默认策略是从获取策略的第一行中获取

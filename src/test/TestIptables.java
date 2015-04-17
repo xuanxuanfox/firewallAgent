@@ -101,7 +101,7 @@ public class TestIptables {
 				message = "10   ACCEPT     tcp  --  0.0.0.0/0            192.168.1.101       multiport dports 3306,3307 state NEW,ESTABLISHED"; 
 				//message = "6    ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0";  //特殊规则，程序应该忽略之
 				//message = "5    ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED";  //特殊规则，程序应该忽略之
-				Rule rule = o.parseInputRule(message);
+				Rule rule = o.parseInputRule("INPUT",message);
 				System.out.println(rule);
 
 				
