@@ -11,6 +11,8 @@ import com.pkq.firewall.agent.IPTables;
 import com.pkq.firewall.common.Constant;
 import com.pkq.firewall.message.request.AddRuleRequest;
 import com.pkq.firewall.message.request.GetRulesRequest;
+import com.pkq.firewall.message.request.DeleteRuleRequest;
+import com.pkq.firewall.message.request.GetDefaultRuleRequest;
 import com.pkq.firewall.message.response.Response;
 
 import com.alibaba.fastjson.JSON;
@@ -39,7 +41,6 @@ public class WorkThread implements Runnable {
 		} else {
 			firewall = null;
 		}
-
 	}
 
 	public void run() {
@@ -89,6 +90,14 @@ public class WorkThread implements Runnable {
 			GetRulesRequest request = JSON.parseObject(msgReceived,
 					GetRulesRequest.class);
 			buffer = firewall.getRules(request);
+		}else if (msgReceived.contains(Constant.DelRule)) {
+			DeleteRuleRequest request = JSON.parseObject(msgReceived,
+					DeleteRuleRequest.class);
+			buffer = firewall.deleteRule(request);
+		}else if (msgReceived.contains(Constant.GetDefaultRuleRequest)) {
+			GetDefaultRuleRequest request = JSON.parseObject(msgReceived,
+					GetDefaultRuleRequest.class);
+			buffer = firewall.getDefaultRule(request);
 		} else {
 			String msg = "unkown type request";
 			throw new Exception(msg);

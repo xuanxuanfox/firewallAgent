@@ -61,7 +61,7 @@ public class IPTables extends FireWallOp {
 		}
 		String lineNumber = ruleId.substring(pos+token.length());
 		String directionInId = ruleId.substring(0,pos);
-		if(!direction.equals(directionInId){
+		if(!direction.equals(directionInId)){
 			throw new Exception("direction 不匹配");
 		}
 		strRet = String.format("iptables -D %s %s", direction,lineNumber);
