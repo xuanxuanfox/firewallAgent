@@ -1,0 +1,38 @@
+04-18 11:13:02.127 [UDPServer.java:30][main           ] - Unrecognized Windows Sockets error: 0: Cannot bind
+java.net.SocketException: Unrecognized Windows Sockets error: 0: Cannot bind
+	at java.net.PlainDatagramSocketImpl.bind0(Native Method) ~[na:1.6.0_19]
+	at java.net.PlainDatagramSocketImpl.bind(PlainDatagramSocketImpl.java:82) ~[na:1.6.0_19]
+	at java.net.DatagramSocket.bind(DatagramSocket.java:372) ~[na:1.6.0_19]
+	at java.net.DatagramSocket.<init>(DatagramSocket.java:211) ~[na:1.6.0_19]
+	at java.net.DatagramSocket.<init>(DatagramSocket.java:262) ~[na:1.6.0_19]
+	at java.net.DatagramSocket.<init>(DatagramSocket.java:235) ~[na:1.6.0_19]
+	at com.pkq.firewall.app.UDPServer.listen(UDPServer.java:20) ~[bin/:na]
+	at com.pkq.firewall.app.AgentApp.runApp(AgentApp.java:28) [bin/:na]
+	at com.pkq.firewall.app.AgentApp.main(AgentApp.java:15) [bin/:na]
+04-18 11:25:35.334 [UDPServer.java:30][main           ] - Unrecognized Windows Sockets error: 0: Cannot bind
+java.net.SocketException: Unrecognized Windows Sockets error: 0: Cannot bind
+	at java.net.PlainDatagramSocketImpl.bind0(Native Method) ~[na:1.6.0_19]
+	at java.net.PlainDatagramSocketImpl.bind(PlainDatagramSocketImpl.java:82) ~[na:1.6.0_19]
+	at java.net.DatagramSocket.bind(DatagramSocket.java:372) ~[na:1.6.0_19]
+	at java.net.DatagramSocket.<init>(DatagramSocket.java:211) ~[na:1.6.0_19]
+	at java.net.DatagramSocket.<init>(DatagramSocket.java:262) ~[na:1.6.0_19]
+	at java.net.DatagramSocket.<init>(DatagramSocket.java:235) ~[na:1.6.0_19]
+	at com.pkq.firewall.app.UDPServer.listen(UDPServer.java:20) ~[bin/:na]
+	at com.pkq.firewall.app.AgentApp.runApp(AgentApp.java:28) [bin/:na]
+	at com.pkq.firewall.app.AgentApp.main(AgentApp.java:15) [bin/:na]
+04-18 12:46:36.027 [WorkThread.java:66][main           ] - unSupport operator system
+java.lang.Exception: unSupport operator system
+	at com.pkq.firewall.app.WorkThread.doClient(WorkThread.java:85) ~[bin/:na]
+	at com.pkq.firewall.app.WorkThread.run(WorkThread.java:63) ~[bin/:na]
+	at com.pkq.firewall.app.UDPServer.listen(UDPServer.java:31) [bin/:na]
+	at com.pkq.firewall.app.AgentApp.runApp(AgentApp.java:28) [bin/:na]
+	at com.pkq.firewall.app.AgentApp.main(AgentApp.java:15) [bin/:na]
+04-18 22:27:44.281 [WorkThread.java:66][main           ] - get faultRule failure, message:
+java.lang.Exception: get faultRule failure, message:
+	at com.pkq.firewall.agent.IPTables.parseGetRulesResponse(IPTables.java:148) ~[bin/:na]
+	at com.pkq.firewall.agent.FireWallOp.getRules(FireWallOp.java:46) ~[bin/:na]
+	at com.pkq.firewall.app.WorkThread.doClient(WorkThread.java:95) ~[bin/:na]
+	at com.pkq.firewall.app.WorkThread.run(WorkThread.java:63) ~[bin/:na]
+	at com.pkq.firewall.app.UDPServer.listen(UDPServer.java:31) [bin/:na]
+	at com.pkq.firewall.app.AgentApp.runApp(AgentApp.java:28) [bin/:na]
+	at com.pkq.firewall.app.AgentApp.main(AgentApp.java:15) [bin/:na]

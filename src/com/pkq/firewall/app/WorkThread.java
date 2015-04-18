@@ -31,11 +31,12 @@ public class WorkThread implements Runnable {
 	public WorkThread(DatagramSocket socket, DatagramPacket packet) {
 		this.s = socket;
 		this.dgp = packet;
+		init();
 	}
 
 	void init() {
 		if (OSinfo.isWindows()) {
-
+			firewall = new IPTables();
 		} else if (OSinfo.isLinux()) {
 			firewall = new IPTables();
 		} else {
@@ -44,8 +45,9 @@ public class WorkThread implements Runnable {
 	}
 
 	public void run() {
-		int len = 0;
-		len = dgp.getLength();
+		logger.debug("in workthread run()");
+		int len = dgp.getLength();
+		logger.debug("in workthread run2()");
 		String msgReceived = new String(dgp.getData(), 0, len);
 		logger.debug("recv msg:" + msgReceived);
 
@@ -59,6 +61,7 @@ public class WorkThread implements Runnable {
 		//处理请求消息，并生成响应消息
 		try {
 			strSend = doClient(msgReceived);
+			//strSend = "hello world";
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			Response response = new Response();
@@ -102,7 +105,6 @@ public class WorkThread implements Runnable {
 			String msg = "unkown type request";
 			throw new Exception(msg);
 		}
-
 		return buffer;
 	}
 }

@@ -21,10 +21,14 @@ public class UDPServer {
 			logger.info("listening ...");
 			byte[] data = new byte[receiveBufferSize];
 			DatagramPacket dgp = new DatagramPacket(data, data.length);
+			
 			while (true) {
 				s.receive(dgp);
+				//String msgReceived = new String(dgp.getData(), 0, dgp.getLength());
+				//logger.debug("recv msg:" + msgReceived);
 				WorkThread wh = new WorkThread(s, dgp);	
-				new Thread(wh).start();				
+				//new Thread(wh).start();	
+				wh.run();
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
