@@ -45,6 +45,7 @@ public abstract class FireWallOp {
 		logger.debug( logMsg );
 		GetRulesResponse response = parseGetRulesResponse(request.getDirection(),request.getStartRow(),request.getLimit(),strRsp);
 		String jsonStringSend = JSON.toJSONString(response);
+		//logger.debug( "send back:\n" + jsonStringSend );
 		return jsonStringSend;
 	}
 

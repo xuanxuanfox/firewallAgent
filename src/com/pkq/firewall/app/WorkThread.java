@@ -45,9 +45,7 @@ public class WorkThread implements Runnable {
 	}
 
 	public void run() {
-		logger.debug("in workthread run()");
 		int len = dgp.getLength();
-		logger.debug("in workthread run2()");
 		String msgReceived = new String(dgp.getData(), 0, len);
 		logger.debug("recv msg:" + msgReceived);
 
@@ -61,7 +59,7 @@ public class WorkThread implements Runnable {
 		//处理请求消息，并生成响应消息
 		try {
 			strSend = doClient(msgReceived);
-			//strSend = "hello world";
+			logger.debug("strSend:\n"+strSend);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			Response response = new Response();
@@ -72,7 +70,7 @@ public class WorkThread implements Runnable {
 		// 发送消息回客户端
 		try {
 			sendBuf = strSend.getBytes();
-			lenSend = sendBuf.length;
+			lenSend = strSend.length();
 			pSend = new DatagramPacket(sendBuf, lenSend, addrClient, portClient);
 			s.send(pSend);
 		} catch (Exception e) {
