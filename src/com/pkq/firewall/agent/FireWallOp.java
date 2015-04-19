@@ -62,6 +62,7 @@ public abstract class FireWallOp {
 	}
 	
 	public String deleteRule(DeleteRuleRequest request) throws Exception{
+		
 		String strCmd = buildDelRuleCommand(request);
 		String strRsp = SystemUtil.runCommand(strCmd);
 		//String strRsp = "Chain INPUT (policy ACCEPT)";

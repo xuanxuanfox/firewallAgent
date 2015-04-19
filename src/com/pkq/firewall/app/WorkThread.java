@@ -86,7 +86,7 @@ public class WorkThread implements Runnable {
 		if (msgReceived.contains(Constant.AddRuleToken)) {
 			AddRuleRequest request = JSON.parseObject(msgReceived,
 					AddRuleRequest.class);
-			firewall.addRule(request);
+			buffer = firewall.addRule(request);
 		} else if (msgReceived.contains(Constant.GetRulesToken)) {
 			GetRulesRequest request = JSON.parseObject(msgReceived,
 					GetRulesRequest.class);
