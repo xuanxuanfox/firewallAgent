@@ -91,11 +91,11 @@ public class WorkThread implements Runnable {
 			GetRulesRequest request = JSON.parseObject(msgReceived,
 					GetRulesRequest.class);
 			buffer = firewall.getRules(request);
-		}else if (msgReceived.contains(Constant.DelRule)) {
+		}else if (msgReceived.contains(Constant.DelRuleToken)) {
 			DeleteRuleRequest request = JSON.parseObject(msgReceived,
 					DeleteRuleRequest.class);
 			buffer = firewall.deleteRule(request);
-		}else if (msgReceived.contains(Constant.GetDefaultRuleRequest)) {
+		}else if (msgReceived.contains(Constant.GetDefaultRuleToken)) {
 			GetDefaultRuleRequest request = JSON.parseObject(msgReceived,
 					GetDefaultRuleRequest.class);
 			buffer = firewall.getDefaultRule(request);
