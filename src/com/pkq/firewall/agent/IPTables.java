@@ -25,7 +25,6 @@ import com.pkq.firewall.message.response.GetRulesResponse;
 import com.pkq.firewall.message.response.Response;
 import com.pkq.firewall.message.request.GetRulesRequest;
 
-
 public class IPTables extends FireWallOp {
 	static final String Action_allow_iptables = "ACCEPT";
 	static final String Action_deny_iptables = "DROP";
@@ -49,26 +48,26 @@ public class IPTables extends FireWallOp {
 		return strRet;
 	}
 
-	String buildDelRuleCommand(DeleteRuleRequest request) throws Exception{
+	String buildDelRuleCommand(DeleteRuleRequest request) throws Exception {
 		String token = "-";
 		String strRet = null;
 		String ruleId = request.getId();
-		logger.debug("buildDelRuleCommand, ruleId="+ruleId);
-		//id组合规则：ip-direction-line,要分解出行号，根据行号删除
+		logger.debug("buildDelRuleCommand, ruleId=" + ruleId);
+		// id组合规则：ip-direction-line,要分解出行号，根据行号删除
 		int pos = ruleId.indexOf(token);
-		logger.debug("buildDelRuleCommand, pos="+pos);
-		if(pos<1){
+		logger.debug("buildDelRuleCommand, pos=" + pos);
+		if (pos < 1) {
 			throw new Exception("rule id 格式不对");
 		}
-		String lineNumber = ruleId.substring(pos+token.length());
-		logger.debug("buildDelRuleCommand, lineNumber="+lineNumber);
-		String directionInId = ruleId.substring(0,pos);
-		logger.debug("buildDelRuleCommand, directionInId="+directionInId);
-		strRet = String.format("iptables -D %s %s", directionInId,lineNumber);
+		String lineNumber = ruleId.substring(pos + token.length());
+		logger.debug("buildDelRuleCommand, lineNumber=" + lineNumber);
+		String directionInId = ruleId.substring(0, pos);
+		logger.debug("buildDelRuleCommand, directionInId=" + directionInId);
+		strRet = String.format("iptables -D %s %s", directionInId, lineNumber);
 		logger.debug("buildDelRuleCommand:" + strRet);
 		return strRet;
 	}
-	
+
 	String buildAddRuleCommand(AddRuleRequest request) {
 		Rule rule = request.getRule();
 		String strRet = null;
@@ -88,9 +87,11 @@ public class IPTables extends FireWallOp {
 		}
 
 		convertRequestRuleToHost(rule); // 转为iptables的rule
-		strRet = String.format("iptables -A %s -p %s %s%s -m state --state NEW,ESTABLISHED -j %s", rule
-				.getDirection(), rule.getProtocol(), remoteIp, remotePort, rule
-				.getAction());
+		strRet = String
+				.format(
+						"iptables -A %s -p %s %s%s -m state --state NEW,ESTABLISHED -j %s",
+						rule.getDirection(), rule.getProtocol(), remoteIp,
+						remotePort, rule.getAction());
 		logger.debug("buildAddRuleCommand:" + strRet);
 		return strRet;
 	}
@@ -105,7 +106,7 @@ public class IPTables extends FireWallOp {
 		return strRet;
 	}
 
-	/***
+	/***************************************************************************
 	 * 解析同意response，正常情况下返回的是空，如果返回不空，表示出现错误
 	 */
 	Response parseCommonResponse(String strRsp) throws Exception {
@@ -123,62 +124,85 @@ public class IPTables extends FireWallOp {
 		}
 	}
 
-	/***
+	/***************************************************************************
 	 * 解析获取策略消息
 	 */
-	public GetRulesResponse parseGetRulesResponse(String direction, int start, int limit, String message) throws Exception {
+	public GetRulesResponse parseGetRulesResponse(String direction, int start,
+			int limit, String message) throws Exception {
 
 		int nLine = 1;
 		int pos = 0;
-
 		String strLineToken = "\r\n";
 		int lenLineToken = strLineToken.length();
 		String strARule = "";
 		String strDefaultPolicy = "";
 		String strtemp = message;
-		int nNow=0;
+		int nNow = 0;
+		int total = 0;
 
+		logger.debug("in parseGetRulesResponse, start:" + start + ",limit"+limit);
 		logger.debug("in parseGetRulesResponse, message:" + strtemp);
 		// 第一行是默认策略，例子： Chain INPUT (policy DROP)
 		pos = strtemp.indexOf(strLineToken);
-		logger.debug("pos1:" + pos);
+		//logger.debug("pos1:" + pos);
 		if (pos > 0) {
 			strDefaultPolicy = strtemp.substring(0, pos);
 		} else {
 			throw new Exception("get faultRule failure, message:" + message);
 		}
-		logger.debug("strDefaultPolicy:{" + strDefaultPolicy+"}");
-		String policy = parseDefaultPolicy(direction,strDefaultPolicy);
-		logger.debug("policy:{" + policy+"}");
-		
+		logger.debug("strDefaultPolicy:{" + strDefaultPolicy + "}");
+		String policy = parseDefaultPolicy(direction, strDefaultPolicy);
+		logger.debug("policy:{" + policy + "}");
+
 		// 第二行是数据栏标题，不是数据，跳过，例子： target prot opt source destination
 		strtemp = strtemp.substring(pos + lenLineToken);
 		pos = strtemp.indexOf(strLineToken);
 		strtemp = strtemp.substring(pos + lenLineToken);
-		logger.debug("rule data :\n" + strtemp );
+		//logger.debug("rule data :\n" + strtemp);
 		// -----------
-		//从第三行开始，
+		// 从第三行开始，
 		// 每行代表一条策略，依次取出行策略
 		pos = strtemp.indexOf(strLineToken);
 		Rule rule;
 		List<Rule> rules = new ArrayList<Rule>();
-		while (pos > 0) {
+		while (pos > 0){
 			strARule = strtemp.substring(0, pos).trim();
-			logger.debug("strARule: "+ strARule);
-			nNow++;
-			if(nNow<start){ //如果没有到起始行，继续
+			//logger.debug("strARule: " + strARule);
+			//如果是空数据，继续下一条数据
+			if (strARule.length() < 1) {
+				strtemp = strtemp.substring(pos + lenLineToken);
+				pos = strtemp.indexOf(strLineToken);
 				continue;
 			}
-			if(nNow>start + limit){ //如果超过了最大行，结束
-				break; 
-			}
-			if(strARule.length()<1){
-				continue;
-			}
+			//如果解析规则失败，继续下一条数据
 			rule = parseRule(direction, strARule);
-			if(null!=rule){
-				rules.add(rule);
+			if (null == rule) {
+				strtemp = strtemp.substring(pos + lenLineToken);
+				pos = strtemp.indexOf(strLineToken);
+				continue;
 			}
+			nNow++;
+			String ruleID = rule.getId();
+			//logger.debug("ruleID :" + ruleID);
+			int posID = ruleID.indexOf("-");
+			if(posID>0){
+				nLine = Integer.valueOf(ruleID.substring(posID+1));
+			}
+			//logger.debug("nLine :" + nLine);
+			if (nLine <= start) { // 如果没有到起始行，继续
+				total++; //总数量加1
+				strtemp = strtemp.substring(pos + lenLineToken);
+				pos = strtemp.indexOf(strLineToken);
+				continue;
+			}
+			total++; //总数量加1
+			if (nLine > start + limit) { // 如果超过了最大行，不加入数据了，只计算总数量
+				
+			} else {
+				logger.debug("strARule: " + strARule);
+				logger.debug("nLine :" + nLine);
+				rules.add(rule);
+			}	
 			strtemp = strtemp.substring(pos + lenLineToken);
 			pos = strtemp.indexOf(strLineToken);
 		}
@@ -186,7 +210,8 @@ public class IPTables extends FireWallOp {
 		GetRulesResponse response = new GetRulesResponse();
 		response.setDefaultPolicy(policy);
 		response.setRules(rules);
-
+		response.setTotal(total);
+		
 		return response;
 	}
 
@@ -199,10 +224,10 @@ public class IPTables extends FireWallOp {
 	 */
 	public Rule parseRule(String direction, String message) throws Exception {
 		if (direction.equals(IPTables.Direction_in)) {
-			return parseInputRule(direction,message);
+			return parseInputRule(direction, message);
 		} else {
-			//return parseOutputRule(message);
-			return parseInputRule(direction,message);
+			// return parseOutputRule(message);
+			return parseInputRule(direction, message);
 		}
 	}
 
@@ -214,23 +239,25 @@ public class IPTables extends FireWallOp {
 	 * @return
 	 * @throws Exception
 	 */
-	public Rule parseInputRule(String direction, String message) throws Exception {
+	public Rule parseInputRule(String direction, String message)
+			throws Exception {
 		Rule rule = new Rule();
-		String strReg1 = "^(\\d)+\\s+(\\w+)\\s+(\\w+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(.+)\\s+state\\s+(\\S+)";
-		String strReg2 = "^(\\d)+\\s+(\\w+)\\s+(\\w+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(.+)";
+		String strReg1 = "^(\\d+)+\\s+(\\w+)\\s+(\\w+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(.+)\\s+state\\s+(\\S+)";
+		String strReg2 = "^(\\d+)+\\s+(\\w+)\\s+(\\w+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(.+)";
 		String strReg;
-		
-		boolean isMultiport = message.contains(IPTables.Multiport_token);;
+
+		boolean isMultiport = message.contains(IPTables.Multiport_token);
+		;
 		boolean hasState = message.contains(IPTables.State_token);
 		boolean hasDestPort = message.contains(IPTables.DestPort_token);
-		
-		if( !isMultiport && !hasDestPort){ //如果即不包含Multiport标记，也不包含dpt:标记，则表示是特殊的规则，如icmp，忽略
+
+		if (!isMultiport && !hasDestPort) { // 如果即不包含Multiport标记，也不包含dpt:标记，则表示是特殊的规则，如icmp，忽略
 			return null;
 		}
-		
-		if(hasState){  //如果包含state标记
+
+		if (hasState) { // 如果包含state标记
 			strReg = strReg1;
-		}else{
+		} else {
 			strReg = strReg2;
 		}
 		String target;
@@ -264,11 +291,11 @@ public class IPTables extends FireWallOp {
 			destination = result.group(6).trim();
 			prot_ports = result.group(7).trim();
 			pps = parseProt_ports(prot_ports);
-			if(message.contains(IPTables.State_token)){
+			if (message.contains(IPTables.State_token)) {
 				state = result.group(8).trim();
 			}
-			//id组合规则：ip-direction-line
-			String ruleID = String.format("%s-%s", direction,nLine);
+			// id组合规则：ip-direction-line
+			String ruleID = String.format("%s-%s", direction, nLine);
 			rule.setId(ruleID);
 			rule.setAction(target);
 			rule.setProtocol(prot);
@@ -281,7 +308,6 @@ public class IPTables extends FireWallOp {
 		}
 		return rule;
 	}
-
 
 	/**
 	 * 
@@ -302,7 +328,7 @@ public class IPTables extends FireWallOp {
 			strReg = strReg2;
 		} else if (message.contains(IPTables.SourcePort_token)) {
 			strReg = strReg3;
-		}else{
+		} else {
 			strReg = strReg1;
 		}
 		PatternCompiler pc = new Perl5Compiler();
@@ -334,40 +360,44 @@ public class IPTables extends FireWallOp {
 	 *            策略消息字符串
 	 * @return 默认策略对象
 	 */
-	GetDefaultRuleResponse parseDefaultRuleResponse(String direction,String message)
-			throws Exception {
+	GetDefaultRuleResponse parseDefaultRuleResponse(String direction,
+			String message) throws Exception {
 		GetDefaultRuleResponse response = new GetDefaultRuleResponse();
-		int start=1;
-		int limit=1;
-		/* 默认策略是从获取策略的第一行中获取
-		 * */
-		GetRulesResponse gr = parseGetRulesResponse(direction, start, limit, message);
+		int start = 1;
+		int limit = 1;
+		/*
+		 * 默认策略是从获取策略的第一行中获取
+		 */
+		GetRulesResponse gr = parseGetRulesResponse(direction, start, limit,
+				message);
 		response.setDirection(direction);
 		response.setPolicy(gr.getDefaultPolicy());
 		return response;
 	}
-	
-	 String parseDefaultPolicy(String direction, String message) throws Exception{
-			ProtPorts pps = new ProtPorts();
-			String strReg = "Chain \\w+ \\(policy (\\w+)\\)";
-			String policy = "";
 
-			PatternCompiler pc = new Perl5Compiler();
-			Pattern pa;
+	String parseDefaultPolicy(String direction, String message)
+			throws Exception {
+		ProtPorts pps = new ProtPorts();
+		String strReg = "Chain \\w+ \\(policy (\\w+)\\)";
+		String policy = "";
 
-			pa = pc.compile(strReg);
-			MatchResult result = null;
+		PatternCompiler pc = new Perl5Compiler();
+		Pattern pa;
 
-			Perl5Matcher ma = new Perl5Matcher();
-			PatternMatcherInput mi = new PatternMatcherInput(message);
-			if (ma.contains(mi, pa)) {
-				result = ma.getMatch();
-				policy = result.group(1).trim();
-				policy = convertHostActionToThis(policy);
-			} else {
-				throw new Exception("parse parseDefaultPolicy failure, message:" + message);
-			}
-			return policy;		
+		pa = pc.compile(strReg);
+		MatchResult result = null;
+
+		Perl5Matcher ma = new Perl5Matcher();
+		PatternMatcherInput mi = new PatternMatcherInput(message);
+		if (ma.contains(mi, pa)) {
+			result = ma.getMatch();
+			policy = result.group(1).trim();
+			policy = convertHostActionToThis(policy);
+		} else {
+			throw new Exception("parse parseDefaultPolicy failure, message:"
+					+ message);
+		}
+		return policy;
 	}
 
 	/***************************************************************************
@@ -408,13 +438,13 @@ public class IPTables extends FireWallOp {
 				: Constant.Action_deny;
 		return action;
 	}
-	
-	String convertHostDirectionToThis(String hostDirection){
+
+	String convertHostDirectionToThis(String hostDirection) {
 		String direction = hostDirection.equals(IPTables.Direction_in) ? Constant.Direction_in
 				: Constant.Direction_out;
 		return direction;
 	}
-	
+
 	String convertThisDirectionToHost(String thisDirection) {
 		String direction = thisDirection.equals(Constant.Direction_in) ? IPTables.Direction_in
 				: IPTables.Direction_out;

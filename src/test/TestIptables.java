@@ -21,8 +21,8 @@ public class TestIptables {
 	 static void testAll(){
 		 //testIptables_getDefaultRule();
 		 //testIptables_AddRule();
-		 //testIptables_GetRules();
-		 testgetIptables_parseRule();
+		 testIptables_GetRules();
+		 //testgetIptables_parseRule();
 		//testgetIptables_parseRemotePort();
 		 //testIptables_parseGetRulesResponse();
 	}
