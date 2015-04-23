@@ -25,6 +25,7 @@ public abstract class FireWallOp {
 	abstract Response parseCommonResponse(String strRsp) throws Exception;
 	abstract GetDefaultRuleResponse parseDefaultRuleResponse(String direction, String strRsp) throws Exception;
 	abstract GetRulesResponse parseGetRulesResponse(String direction, int start, int limit, String message) throws Exception;
+	abstract void runSaveCommand();
 	
 	public String addRule(AddRuleRequest request) throws Exception{
 		String strCmd = buildAddRuleCommand(request);
@@ -33,6 +34,8 @@ public abstract class FireWallOp {
 		logger.debug( logMsg );
 		Response response = parseCommonResponse(strRsp);
 		String jsonStringSend = JSON.toJSONString(response);
+		//保存配置
+		runSaveCommand();
 		return jsonStringSend;
 	}
 	
@@ -45,6 +48,7 @@ public abstract class FireWallOp {
 		logger.debug( logMsg );
 		GetRulesResponse response = parseGetRulesResponse(request.getDirection(),request.getStartRow(),request.getLimit(),strRsp);
 		String jsonStringSend = JSON.toJSONString(response);
+		
 		//logger.debug( "send back:\n" + jsonStringSend );
 		return jsonStringSend;
 	}
@@ -70,6 +74,8 @@ public abstract class FireWallOp {
 		logger.debug( logMsg );
 		Response response = parseCommonResponse(strRsp);
 		String jsonStringSend = JSON.toJSONString(response);
+		//保存配置
+		runSaveCommand();
 		return jsonStringSend;
 		
 	}

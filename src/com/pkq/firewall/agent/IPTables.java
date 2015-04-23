@@ -36,6 +36,14 @@ public class IPTables extends FireWallOp {
 	static final String State_token = " state";
 	Logger logger = LoggerFactory.getLogger(IPTables.class);
 
+	void runSaveCommand(){
+		String strCmd="service iptables save";
+		try {
+			SystemUtil.runCommand(strCmd);
+		} catch (Exception e) {
+			logger.error("runSaveCommand error:",e);
+		}
+	}
 	/**
 	 * 按照获取默认策略对象生成iptable命令
 	 */
