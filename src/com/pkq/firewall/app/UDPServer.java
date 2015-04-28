@@ -28,7 +28,8 @@ public class UDPServer {
 				//logger.debug("recv msg:" + msgReceived);
 				WorkThread wh = new WorkThread(s, dgp);	
 				//new Thread(wh).start();	
-				wh.run();
+				wh.start();
+				//wh.run();
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);

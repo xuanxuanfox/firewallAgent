@@ -20,6 +20,7 @@ import com.pkq.firewall.model.Rule;
 import com.pkq.firewall.message.request.AddRuleRequest;
 import com.pkq.firewall.message.request.DeleteRuleRequest;
 import com.pkq.firewall.message.request.GetDefaultRuleRequest;
+import com.pkq.firewall.message.request.UpdateRequest;
 import com.pkq.firewall.message.response.GetDefaultRuleResponse;
 import com.pkq.firewall.message.response.GetRulesResponse;
 import com.pkq.firewall.message.response.Response;
@@ -36,6 +37,10 @@ public class IPTables extends FireWallOp {
 	static final String State_token = " state";
 	Logger logger = LoggerFactory.getLogger(IPTables.class);
 
+	public IPTables(){
+		updateShellFile = "/opt/agentUpdate/update.sh \"";
+	}
+	
 	void runSaveCommand(){
 		String strCmd="service iptables save";
 		try {
@@ -85,7 +90,7 @@ public class IPTables extends FireWallOp {
 		// 如果策略中含ip
 		if (rule.getRemoteIp() != null
 				&& rule.getRemoteIp().trim().length() > 0) {
-			remoteIp = " -d " + rule.getRemoteIp().trim();
+			remoteIp = " -s " + rule.getRemoteIp().trim();
 		}
 		// 如果是多个端口
 		if (rule.getRemotePort() != null && rule.getRemotePort().contains(",")) {
@@ -310,7 +315,7 @@ public class IPTables extends FireWallOp {
 			rule.setPort(pps.getPorts());
 			// remotePort = parseRemotePort(destination);
 			rule.setRemotePort(pps.getRemotePorts());
-			rule.setRemoteIp(destination);
+			rule.setRemoteIp(source);
 		} else {
 			throw new Exception("parseInputRule failure, message:" + message);
 		}
@@ -458,5 +463,4 @@ public class IPTables extends FireWallOp {
 				: IPTables.Direction_out;
 		return direction;
 	}
-
 }

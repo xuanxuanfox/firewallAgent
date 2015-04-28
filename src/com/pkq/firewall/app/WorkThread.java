@@ -13,6 +13,7 @@ import com.pkq.firewall.message.request.AddRuleRequest;
 import com.pkq.firewall.message.request.GetRulesRequest;
 import com.pkq.firewall.message.request.DeleteRuleRequest;
 import com.pkq.firewall.message.request.GetDefaultRuleRequest;
+import com.pkq.firewall.message.request.UpdateRequest;
 import com.pkq.firewall.message.response.Response;
 
 import com.alibaba.fastjson.JSON;
@@ -22,7 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.pkq.util.OSinfo;
 
-public class WorkThread implements Runnable {
+public class WorkThread extends Thread{
+	//--
 	DatagramPacket dgp;
 	DatagramSocket s;
 	FireWallOp firewall = null;
@@ -99,10 +101,16 @@ public class WorkThread implements Runnable {
 			GetDefaultRuleRequest request = JSON.parseObject(msgReceived,
 					GetDefaultRuleRequest.class);
 			buffer = firewall.getDefaultRule(request);
-		} else {
+		} else if (msgReceived.contains(Constant.UpdateToken)){
+			UpdateRequest request = JSON.parseObject(msgReceived,
+					UpdateRequest.class);
+			buffer = firewall.updateAgent(request);
+		}
+		else {
 			String msg = "unkown type request";
 			throw new Exception(msg);
 		}
 		return buffer;
 	}
+
 }
