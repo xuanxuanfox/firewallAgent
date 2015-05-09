@@ -33,18 +33,9 @@ public class WorkThread extends Thread{
 	public WorkThread(DatagramSocket socket, DatagramPacket packet) {
 		this.s = socket;
 		this.dgp = packet;
-		init();
+		firewall = AgentApp.firewall;
 	}
 
-	void init() {
-		if (OSinfo.isWindows()) {
-			firewall = new IPTables();
-		} else if (OSinfo.isLinux()) {
-			firewall = new IPTables();
-		} else {
-			firewall = null;
-		}
-	}
 
 	public void run() {
 		int len = dgp.getLength();

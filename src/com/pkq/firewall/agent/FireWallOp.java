@@ -48,11 +48,11 @@ public abstract class FireWallOp {
 	public String updateAgent(UpdateRequest request) throws Exception {
 		Response response = new Response();
 		//如果当前版本大于要更新的版本，不更新
-		if( com.pkq.firewall.app.AgentApp.versionIndex >= request.getVersionIndex()){
+		if( AgentApp.versionIndex >= request.getVersionIndex()){
 			response.setResultMessage("need not update, versionidex new");
 		}
 		//如果不是本操作系统类型，不更新
-		else if(!com.pkq.firewall.app.AgentApp.optype.equals(request.getOstype())){
+		else if(!AgentApp.optype.equals(request.getOstype())){
 			response.setResultMessage("need not update, ostype different");
 		}else{
 			String strCmd = updateShellFile + request.getDownUrl() + "\"";
