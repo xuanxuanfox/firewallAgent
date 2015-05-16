@@ -29,8 +29,8 @@ import com.pkq.firewall.message.request.GetRulesRequest;
 public class IPTables extends FireWallOp {
 	static final String Action_allow_iptables = "ACCEPT";
 	static final String Action_deny_iptables = "DROP";
-	static final String Direction_in = "INPUT";
-	static final String Direction_out = "OUTPUT";
+	static final String Direction_in_iptables = "INPUT";
+	static final String Direction_out_iptables = "OUTPUT";
 	static final String Multiport_token = "multiport";
 	static final String SourcePort_token = "spt:";
 	static final String DestPort_token = "dpt:";
@@ -236,7 +236,7 @@ public class IPTables extends FireWallOp {
 	 * @throws Exception
 	 */
 	public Rule parseRule(String direction, String message) throws Exception {
-		if (direction.equals(IPTables.Direction_in)) {
+		if (direction.equals(IPTables.Direction_in_iptables)) {
 			return parseInputRule(direction, message);
 		} else {
 			// return parseOutputRule(message);
@@ -424,8 +424,8 @@ public class IPTables extends FireWallOp {
 				: Action_deny_iptables;
 		rule.setAction(action);
 
-		String direction = rule.getDirection().equals(Constant.Direction_in) ? IPTables.Direction_in
-				: IPTables.Direction_out;
+		String direction = rule.getDirection().equals(Constant.Direction_in) ? IPTables.Direction_in_iptables
+				: IPTables.Direction_out_iptables;
 		rule.setDirection(direction);
 	}
 
@@ -435,14 +435,14 @@ public class IPTables extends FireWallOp {
 	 * @param request
 	 */
 	void convertRequestGetDefaultRuleRequestToHost(GetDefaultRuleRequest request) {
-		String direction = request.getDirection().equals(Constant.Direction_in) ? IPTables.Direction_in
-				: IPTables.Direction_out;
+		String direction = request.getDirection().equals(Constant.Direction_in) ? IPTables.Direction_in_iptables
+				: IPTables.Direction_out_iptables;
 		request.setDirection(direction);
 	}
 
 	void convertGetRulesRequestToHost(GetRulesRequest request) {
-		String direction = request.getDirection().equals(Constant.Direction_in) ? IPTables.Direction_in
-				: IPTables.Direction_out;
+		String direction = request.getDirection().equals(Constant.Direction_in) ? IPTables.Direction_in_iptables
+				: IPTables.Direction_out_iptables;
 		request.setDirection(direction);
 	}
 
@@ -453,14 +453,14 @@ public class IPTables extends FireWallOp {
 	}
 
 	String convertHostDirectionToThis(String hostDirection) {
-		String direction = hostDirection.equals(IPTables.Direction_in) ? Constant.Direction_in
+		String direction = hostDirection.equals(IPTables.Direction_in_iptables) ? Constant.Direction_in
 				: Constant.Direction_out;
 		return direction;
 	}
 
 	String convertThisDirectionToHost(String thisDirection) {
-		String direction = thisDirection.equals(Constant.Direction_in) ? IPTables.Direction_in
-				: IPTables.Direction_out;
+		String direction = thisDirection.equals(Constant.Direction_in) ? IPTables.Direction_in_iptables
+				: IPTables.Direction_out_iptables;
 		return direction;
 	}
 }
