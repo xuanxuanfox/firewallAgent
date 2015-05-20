@@ -7,6 +7,7 @@ import java.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pkq.firewall.agent.AdvFirewall;
 import com.pkq.firewall.agent.FireWallOp;
 import com.pkq.firewall.agent.IPTables;
 import com.pkq.firewall.app.UDPServer;
@@ -41,7 +42,7 @@ public class AgentApp {
 		} else {
 		}
 		if (OSinfo.isWindows()) {
-			firewall = new IPTables();
+			firewall = new AdvFirewall();
 		} else if (OSinfo.isLinux()) {
 			firewall = new IPTables();
 		} else {
@@ -67,10 +68,11 @@ public class AgentApp {
 			Timer timer; 
 			long NO_DELAY = 0;   
 			timer = new Timer("更新代理通知定时器",true); 
-			timer.schedule(new UpdateTask(), NO_DELAY,newestVersionInteval * 1000);
+			//timer.schedule(new UpdateTask(), NO_DELAY,newestVersionInteval * 1000);
 			//----------- 监听
 			UDPServer dgs = new UDPServer(port);
 			dgs.listen();
+			
 		} catch (Exception e) {
 			//e.getMessage();
 			logger.error(e.getMessage(),e);

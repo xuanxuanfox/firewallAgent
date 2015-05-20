@@ -18,9 +18,9 @@ public class TestAdvFirewall {
 	 }
 	 
 	 static void testAll(){
-		 testIptables_getDefaultRule();
+		 //testIptables_getDefaultRule();
 		 //testIptables_AddRule();
-		 //testGetRules();
+		 testGetRules();
 		 //testgetIptables_parseRule();
 		//testgetIptables_parseRemotePort();
 		 //testIptables_parseGetRulesResponse();

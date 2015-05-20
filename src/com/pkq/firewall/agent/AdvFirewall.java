@@ -29,20 +29,26 @@ public class AdvFirewall extends FireWallOp {
 		Rule rule = request.getRule();
 		String strRet = null;
 		String remoteIp = "";
-		String remotePort = "";
+		String localPort = "";
 
 		// 如果策略中含ip
 		if (rule.getRemoteIp() != null
 				&& rule.getRemoteIp().trim().length() > 0) {
 			remoteIp = " remoteip=" + rule.getRemoteIp().trim();
 		}
-		remotePort = " localport=" + rule.getRemotePort().trim();
+		//inboud和outbound的loclport含义不一样
+		//如果是inbound
+		if(request.getRule().getDirection().equals(Constant.Direction_in)){
+			localPort = " localport=" + rule.getRemotePort().trim();
+		}else{
+			localPort = " remoteport=" + rule.getRemotePort().trim();
+		}
 		convertRequestRuleToHost(rule); // 转为AdvFirewall的rule
 		strRet = String
 				.format(
-						"netsh advfirewall firewall add rule name=pkqrule dir=%s action=%s protocol=%s localport=%s %s",
+						"netsh advfirewall firewall add rule name=pkqrule dir=%s action=%s protocol=%s %s %s",
 						rule.getDirection(), rule.getAction(), rule
-								.getProtocol(), remotePort, remoteIp);
+								.getProtocol(), localPort, remoteIp);
 		logger.debug("buildAddRuleCommand:" + strRet);
 		return strRet;
 	}
@@ -50,11 +56,20 @@ public class AdvFirewall extends FireWallOp {
 	@Override
 	String buildDelRuleCommand(DeleteRuleRequest request) throws Exception {
 		String strRet = null;
+		String direction = request.getDirection().equals(Constant.Direction_in) ? AdvFirewall.Direction_in_advfirewall
+				: AdvFirewall.Direction_out_advfirewall;
+		String wherePort;
+		
+		if(direction.equals( AdvFirewall.Direction_in_advfirewall)){
+			wherePort ="localport";
+		}else{
+			wherePort ="remoteport";
+		}
 
 		strRet = String
 				.format(
-						"netsh advfirewall firewall delete rule name=pkqrule protocol= %s localport=%s",
-						request.getProtocol(), request.getPort());
+						"netsh advfirewall firewall delete rule name=pkqrule dir=%s protocol= %s %s=%s",
+						direction,	request.getProtocol(), wherePort,request.getPort());
 		logger.debug("buildDelRuleCommand:" + strRet);
 		return strRet;
 	}
@@ -141,6 +156,9 @@ public class AdvFirewall extends FireWallOp {
 		return response;
 	}
 
+	/**
+	 * 解析获取策略
+	 */
 	@Override
 	GetRulesResponse parseGetRulesResponse(String direction, int start,
 			int limit, String message) throws Exception {
@@ -201,16 +219,24 @@ public class AdvFirewall extends FireWallOp {
 			localPort= message.substring(posLocalPort+tokenLocalPort.length(),posNewLine);
 			localPort = StringUtils.replaceBlank(localPort);
 			localPort = convertHostRuleValueToThis(localPort);
-			rule.setPort(localPort);
+			if(direction.equals( AdvFirewall.Direction_in_advfirewall)){
+				rule.setRemotePort(localPort);
+			}else{
+				rule.setPort(localPort);
+			}
+			
 			//----remotePort
 			posRemotePort = message.indexOf(tokenRemotePort, posRemoteIp);
 			posNewLine = message.indexOf(AdvFirewallToken.tokenNewLine,
 					posRemotePort);
 			remotePort= message.substring(posRemotePort+tokenRemotePort.length(),posNewLine);			
 			remotePort = StringUtils.replaceBlank(remotePort);
-			//会出现去不了的空格
 			remotePort = convertHostRuleValueToThis(remotePort);
-			rule.setRemotePort(remotePort);
+			if(direction.equals( AdvFirewall.Direction_in_advfirewall)){
+				rule.setPort(remotePort);
+			}else{
+				rule.setRemotePort(remotePort);
+			}
 			//----action
 			posAction = message.indexOf(tokenAction, posRemoteIp);
 			posNewLine = message.indexOf(AdvFirewallToken.tokenNewLine,

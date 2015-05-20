@@ -37,7 +37,7 @@ public class AdvFirewallToken {
 			tokens = tokens_GETRULE_ACTION;
 		}
 		for( int i=0;i<tokens.length;i++){
-			if(message.indexOf(tokens[i])>0){
+			if(message.indexOf(tokens[i])>=0){
 				token=tokens[i];
 				break;
 			}
