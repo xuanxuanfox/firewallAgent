@@ -1,9 +1,12 @@
 package com.pkq.firewall.app;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 
 import com.pkq.firewall.agent.FireWallOp;
 import com.pkq.firewall.agent.IPTables;
@@ -23,10 +26,13 @@ import org.slf4j.LoggerFactory;
 
 import com.pkq.util.OSinfo;
 
-public class WorkThread extends Thread{
-	//--
+public class WorkThread extends Thread {
+	// --
 	DatagramPacket dgp;
 	DatagramSocket s;
+	// --
+	Socket connection;
+	// --
 	FireWallOp firewall = null;
 	Logger logger = LoggerFactory.getLogger(WorkThread.class);
 
@@ -36,23 +42,31 @@ public class WorkThread extends Thread{
 		firewall = AgentApp.firewall;
 	}
 
+	public WorkThread(Socket connection) {
+		this.connection = connection;
+		firewall = AgentApp.firewall;
+	}
 
 	public void run() {
-		int len = dgp.getLength();
-		String msgReceived = new String(dgp.getData(), 0, len);
-		logger.debug("recv msg:" + msgReceived);
+		// doUDP();
+		doTCP();
+	}
 
-		// 处理接收到的消息
-		byte[] sendBuf = null;
-		DatagramPacket pSend;
-		InetAddress addrClient = dgp.getAddress();
-		int portClient = dgp.getPort();
-		int lenSend;
+	private void doTCP() {
 		String strSend;
-		//处理请求消息，并生成响应消息
 		try {
-			strSend = doClient(msgReceived);
-			logger.debug("strSend:\n"+strSend);
+			InputStream in = connection.getInputStream();
+			byte[] buffer = new byte[256];
+			int nread = in.read(buffer, 0, 256);
+			String strRecv = new String(buffer, 0, nread);
+			logger.debug("recv msg:" + strRecv);
+			// 处理接收到的消息
+			byte[] sendBuf = null;
+			DatagramPacket pSend;
+			int lenSend;
+			strSend = doClient(strRecv);
+			logger.debug("strSend:\n" + strSend);
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			Response response = new Response();
@@ -61,7 +75,53 @@ public class WorkThread extends Thread{
 			strSend = JSON.toJSONString(response);
 		}
 		// 发送消息回客户端
+		sendBack_TCP(strSend);
+	}
+	
+	private void sendBack_TCP(String strSend) {
+		try{
+		OutputStreamWriter out = new
+		 OutputStreamWriter(connection.getOutputStream( ));
+		 out.write(strSend);
+		 out.flush();
+		}
+		 catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+	}
+
+	private void doUDP() {
+		int len = dgp.getLength();
+		String msgReceived = new String(dgp.getData(), 0, len);
+		logger.debug("recv msg:" + msgReceived);
+
+		// 处理接收到的消息
+		byte[] sendBuf = null;
+		DatagramPacket pSend;
+		int lenSend;
+		String strSend;
+		// 处理请求消息，并生成响应消息
 		try {
+			strSend = doClient(msgReceived);
+			logger.debug("strSend:\n" + strSend);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			Response response = new Response();
+			response.setResultCode(Constant.FALSE_CODE);
+			response.setResultMessage(e.getMessage());
+			strSend = JSON.toJSONString(response);
+		}
+		// 发送消息回客户端
+		sendBack_UDP(strSend);
+	}
+
+	private void sendBack_UDP(String strSend) {
+		byte[] sendBuf;
+		DatagramPacket pSend;
+		int lenSend;
+		try {
+			InetAddress addrClient = dgp.getAddress();
+			int portClient = dgp.getPort();
 			sendBuf = strSend.getBytes();
 			lenSend = strSend.length();
 			pSend = new DatagramPacket(sendBuf, lenSend, addrClient, portClient);
@@ -84,20 +144,19 @@ public class WorkThread extends Thread{
 			GetRulesRequest request = JSON.parseObject(msgReceived,
 					GetRulesRequest.class);
 			buffer = firewall.getRules(request);
-		}else if (msgReceived.contains(Constant.DelRuleToken)) {
+		} else if (msgReceived.contains(Constant.DelRuleToken)) {
 			DeleteRuleRequest request = JSON.parseObject(msgReceived,
 					DeleteRuleRequest.class);
 			buffer = firewall.deleteRule(request);
-		}else if (msgReceived.contains(Constant.GetDefaultRuleToken)) {
+		} else if (msgReceived.contains(Constant.GetDefaultRuleToken)) {
 			GetDefaultRuleRequest request = JSON.parseObject(msgReceived,
 					GetDefaultRuleRequest.class);
 			buffer = firewall.getDefaultRule(request);
-		} else if (msgReceived.contains(Constant.UpdateToken)){
+		} else if (msgReceived.contains(Constant.UpdateToken)) {
 			UpdateRequest request = JSON.parseObject(msgReceived,
 					UpdateRequest.class);
 			buffer = firewall.updateAgent(request);
-		}
-		else {
+		} else {
 			String msg = "unkown type request";
 			throw new Exception(msg);
 		}

@@ -1,6 +1,7 @@
 package com.pkq.firewall.app;
 
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.util.Properties;
 import java.util.Timer;
 
@@ -12,6 +13,7 @@ import com.pkq.firewall.agent.FireWallOp;
 import com.pkq.firewall.agent.IPTables;
 import com.pkq.firewall.app.UDPServer;
 import com.pkq.firewall.common.Constant;
+import com.pkq.util.FileOp;
 import com.pkq.util.OSinfo;
 
 public class AgentApp {
@@ -28,7 +30,14 @@ public class AgentApp {
 	
 	public static void main(String[] args) {
 		AgentApp app = new AgentApp();
+		String pidFile = "pf.pid";
 		app.init();
+		String pid = app.getPid();
+		try{
+			FileOp.writeToTextFile(pidFile,pid);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 		app.runApp();
 	}
 	
@@ -68,9 +77,10 @@ public class AgentApp {
 			Timer timer; 
 			long NO_DELAY = 0;   
 			timer = new Timer("更新代理通知定时器",true); 
-			//timer.schedule(new UpdateTask(), NO_DELAY,newestVersionInteval * 1000);
+			timer.schedule(new UpdateTask(), NO_DELAY,newestVersionInteval * 1000);
 			//----------- 监听
-			UDPServer dgs = new UDPServer(port);
+			//UDPServer dgs = new UDPServer(port);
+			TCPServer dgs = new TCPServer(port);
 			dgs.listen();
 			
 		} catch (Exception e) {
@@ -78,6 +88,19 @@ public class AgentApp {
 			logger.error(e.getMessage(),e);
 			return;
 		}
+	}
+	
+	/**
+	 * 获取进程号
+	 * @return
+	 */
+	String getPid(){
+		String name = ManagementFactory.getRuntimeMXBean().getName();  
+		System.out.println(name);  
+		// get pid  
+		String pid = name.split("@")[0];  
+		//System.out.println("Pid is:" + pid);
+		return pid;
 	}
 
 }

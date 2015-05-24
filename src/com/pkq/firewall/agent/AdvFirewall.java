@@ -23,7 +23,10 @@ public class AdvFirewall extends FireWallOp {
 	static final String Direction_out_advfirewall = "out";
 	static final String Direction_in_policy_advfirewall = "inbound";
 	static final String Direction_out_policy_advfirewall = "outbound";
-
+	
+	public AdvFirewall(){
+		updateShellFile = "..\\update.bat";
+	}
 	@Override
 	String buildAddRuleCommand(AddRuleRequest request) {
 		Rule rule = request.getRule();

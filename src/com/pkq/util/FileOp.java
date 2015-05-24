@@ -28,6 +28,12 @@ public class FileOp {
 			return str;
 	}
 	
+	public static void writeToTextFile( String fileName, String str ) throws IOException{
+		//open for append
+		BufferedWriter out = new BufferedWriter(new FileWriter( fileName, false));     
+		out.write( str );     
+		out.close();		
+}
 	public static void appendToTextFile( String fileName, String str ) throws IOException{
 			//open for append
 			BufferedWriter out = new BufferedWriter(new FileWriter( fileName, true));     
