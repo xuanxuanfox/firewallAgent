@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 public class TCPServer {
 	int port = 5114;  //默认监听端口
 	int receiveBufferSize = 1024; //默认接收缓冲区大小
+	public static boolean bExit= false;
 	Logger logger = LoggerFactory.getLogger(UDPServer.class); 
 	
 	public TCPServer(int port){
@@ -22,7 +23,7 @@ public class TCPServer {
 			ServerSocket server = new ServerSocket(port);
 			logger.info("listening ...");
 			byte[] data = new byte[receiveBufferSize];
-			while (true) {
+			while (!bExit) {
 				Socket connection = server.accept();
 				WorkThread wh = new WorkThread(connection);	
 				//new Thread(wh).start();	

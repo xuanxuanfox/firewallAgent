@@ -132,10 +132,15 @@ public class WorkThread extends Thread {
 	}
 
 	String doClient(String msgReceived) throws Exception {
+		String buffer = null;
+		if(msgReceived.equals("please exit")){
+			buffer = "ok";
+			TCPServer.bExit = true;
+			return buffer;
+		}
 		if (firewall == null) {
 			throw new Exception("unSupport operator system");
 		}
-		String buffer = null;
 		if (msgReceived.contains(Constant.AddRuleToken)) {
 			AddRuleRequest request = JSON.parseObject(msgReceived,
 					AddRuleRequest.class);
@@ -152,11 +157,7 @@ public class WorkThread extends Thread {
 			GetDefaultRuleRequest request = JSON.parseObject(msgReceived,
 					GetDefaultRuleRequest.class);
 			buffer = firewall.getDefaultRule(request);
-		} else if (msgReceived.contains(Constant.UpdateToken)) {
-			UpdateRequest request = JSON.parseObject(msgReceived,
-					UpdateRequest.class);
-			buffer = firewall.updateAgent(request);
-		} else {
+		}else {
 			String msg = "unkown type request";
 			throw new Exception(msg);
 		}

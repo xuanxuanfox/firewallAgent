@@ -24,17 +24,18 @@ public class AgentApp {
 	public static FireWallOp firewall = null;
 	//----------
 	public static int port;
-	public static String newestVersionUrl;
-	public static int newestVersionInteval;
 	
 	
 	public static void main(String[] args) {
 		AgentApp app = new AgentApp();
 		String pidFile = "pf.pid";
+		String versionFile = "pf.version";
 		app.init();
 		String pid = app.getPid();
+		String versionTag = String.format("%d,%s", versionIndex,version);
 		try{
 			FileOp.writeToTextFile(pidFile,pid);
+			FileOp.writeToTextFile(versionFile,versionTag);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
@@ -69,15 +70,8 @@ public class AgentApp {
 			prop.load(is);
 			is.close();
 			port = Integer.parseInt(prop.getProperty("port").trim());
-			newestVersionUrl = prop.getProperty("newestVersionUrl").trim();
-			newestVersionInteval = Integer.parseInt(prop.getProperty("newestVersionInteval").trim());
-			logmsg = String.format("listen port:%d, newestVersionInteval:%d second, newestVersionUrl:%s", port,newestVersionInteval,newestVersionUrl);
+			logmsg = String.format("listen port:%d", port);
 			logger.info(logmsg);
-			//----------更新定时器
-			Timer timer; 
-			long NO_DELAY = 0;   
-			timer = new Timer("更新代理通知定时器",true); 
-			timer.schedule(new UpdateTask(), NO_DELAY,newestVersionInteval * 1000);
 			//----------- 监听
 			//UDPServer dgs = new UDPServer(port);
 			TCPServer dgs = new TCPServer(port);

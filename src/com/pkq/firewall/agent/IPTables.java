@@ -37,10 +37,7 @@ public class IPTables extends FireWallOp {
 	static final String State_token = " state";
 	Logger logger = LoggerFactory.getLogger(IPTables.class);
 
-	public IPTables(){
-		updateShellFile = "/opt/agentUpdate/update.sh \"";
-	}
-	
+
 	void runSaveCommand(){
 		String strCmd="service iptables save";
 		try {

@@ -25,7 +25,6 @@ public class AdvFirewall extends FireWallOp {
 	static final String Direction_out_policy_advfirewall = "outbound";
 	
 	public AdvFirewall(){
-		updateShellFile = "..\\update.bat";
 	}
 	@Override
 	String buildAddRuleCommand(AddRuleRequest request) {
@@ -165,7 +164,7 @@ public class AdvFirewall extends FireWallOp {
 	@Override
 	GetRulesResponse parseGetRulesResponse(String direction, int start,
 			int limit, String message) throws Exception {
-		int nLine = 1;
+		int nLine = 0;
 		int i, total = 0;
 		//int nNow = 0;
 		Rule rule;

@@ -19,7 +19,6 @@ import com.pkq.firewall.message.request.GetRulesRequest;
 
 public abstract class FireWallOp {
 	Logger logger = LoggerFactory.getLogger(IPTables.class);
-	String updateShellFile;
 
 	abstract String buildAddRuleCommand(AddRuleRequest request);
 
@@ -40,28 +39,6 @@ public abstract class FireWallOp {
 
 	abstract void runSaveCommand();
 
-	/**
-	 * 更新新版本
-	 * 
-	 * @param request
-	 */
-	public String updateAgent(UpdateRequest request) throws Exception {
-		Response response = new Response();
-		//如果当前版本大于要更新的版本，不更新
-		if( AgentApp.versionIndex >= request.getVersionIndex()){
-			response.setResultMessage("need not update, versionidex new");
-		}
-		//如果不是本操作系统类型，不更新
-		else if(!AgentApp.optype.equals(request.getOstype())){
-			response.setResultMessage("need not update, ostype different");
-		}else{
-			String strCmd = updateShellFile + request.getDownUrl() + "\"";
-			logger.debug("updateShellFile:" + updateShellFile);
-			SystemUtil.runCommand(strCmd);
-		}
-		String jsonStringSend = JSON.toJSONString(response);
-		return jsonStringSend;
-	}
 
 	public String addRule(AddRuleRequest request) throws Exception {
 		String strCmd = buildAddRuleCommand(request);
